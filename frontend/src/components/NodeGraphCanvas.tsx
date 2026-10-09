@@ -164,18 +164,29 @@ export const NodeGraphCanvas: React.FC<NodeGraphCanvasProps> = ({
           const isEdgePruned = isPruned && idx === activeEdges.length - 1;
 
           return (
-            <line
-              key={`active-edge-${idx}`}
-              x1={edge.x1}
-              y1={edge.y1}
-              x2={edge.x2}
-              y2={edge.y2}
-              stroke={isFinalRoute ? "url(#finalGrad)" : isEdgePruned ? "#F43F5E" : "url(#activeGrad)"}
-              strokeWidth={isFinalRoute ? "4" : isEdgePruned ? "2.5" : "3"}
-              strokeDasharray={isEdgePruned ? "4 4" : "none"}
-              filter={isFinalRoute ? "url(#goldGlow)" : "url(#cyanGlow)"}
-              className={!isFinalRoute && !isEdgePruned ? "path-active-pulse" : ""}
-            />
+            <g key={`active-edge-group-${idx}`}>
+              <line
+                key={`active-edge-${idx}`}
+                x1={edge.x1}
+                y1={edge.y1}
+                x2={edge.x2}
+                y2={edge.y2}
+                stroke={isFinalRoute ? "url(#finalGrad)" : isEdgePruned ? "#F43F5E" : "url(#activeGrad)"}
+                strokeWidth={isFinalRoute ? "4" : isEdgePruned ? "2.5" : "3.5"}
+                strokeDasharray={isEdgePruned ? "4 4" : "none"}
+                filter={isFinalRoute ? "url(#goldGlow)" : "url(#cyanGlow)"}
+                className={!isFinalRoute && !isEdgePruned ? "path-active-pulse" : ""}
+              />
+              {!isFinalRoute && !isEdgePruned && (
+                <circle r="4" fill="#38BDF8" filter="url(#cyanGlow)">
+                  <animateMotion
+                    path={`M ${edge.x1} ${edge.y1} L ${edge.x2} ${edge.y2}`}
+                    dur="1.2s"
+                    repeatCount="indefinite"
+                  />
+                </circle>
+              )}
+            </g>
           );
         })}
 

@@ -24,10 +24,12 @@ export const VisualizationPage: React.FC<VisualizationPageProps> = ({
   const [isPlaying, setIsPlaying] = useState(false);
   const [speed, setSpeed] = useState(1);
 
-  const handleRun = async () => {
+  const handleRun = async (algoToRun?: string) => {
+    if (locations.length < 1) return;
     setLoading(true);
+    const targetAlgo = algoToRun || selectedAlgo;
     try {
-      const res = await api.optimizeSingle(locations, selectedAlgo);
+      const res = await api.optimizeSingle(locations, targetAlgo);
       setSelectedRouteResult(res);
       setCurrentStep(0);
       setIsPlaying(false);
@@ -38,12 +40,18 @@ export const VisualizationPage: React.FC<VisualizationPageProps> = ({
     }
   };
 
+  useEffect(() => {
+    if (locations.length > 0) {
+      handleRun(selectedAlgo);
+    }
+  }, [selectedAlgo, locations]);
+
   const traceEvents = selectedRouteResult?.execution_trace || [];
   const currentEvent = traceEvents[currentStep];
 
   useEffect(() => {
     if (!isPlaying || traceEvents.length === 0) return;
-    const intervalMs = Math.max(50, Math.round(800 / speed));
+    const intervalMs = Math.max(50, Math.round(700 / speed));
 
     const timer = setInterval(() => {
       setCurrentStep((prev) => {
@@ -73,8 +81,12 @@ export const VisualizationPage: React.FC<VisualizationPageProps> = ({
         <div className="flex items-center gap-3">
           <select
             value={selectedAlgo}
-            onChange={(e) => setSelectedAlgo(e.target.value)}
-            className="bg-slate-900 border border-slate-700 text-white text-xs font-mono font-bold rounded-xl px-3 py-2"
+            onChange={(e) => {
+              const newAlgo = e.target.value;
+              setSelectedAlgo(newAlgo);
+              handleRun(newAlgo);
+            }}
+            className="bg-slate-900 border border-slate-700 text-white text-xs font-mono font-bold rounded-xl px-3 py-2 cursor-pointer focus:outline-none focus:border-cyan-500"
           >
             <option value="Brute Force">Brute Force O(N!)</option>
             <option value="Dynamic Programming (Held-Karp)">Dynamic Programming O(N² 2ᴺ)</option>
@@ -84,9 +96,9 @@ export const VisualizationPage: React.FC<VisualizationPageProps> = ({
           </select>
 
           <button
-            onClick={handleRun}
+            onClick={() => handleRun()}
             disabled={loading}
-            className="px-6 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 font-bold text-xs rounded-xl shadow-lg flex items-center gap-2"
+            className="px-6 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 font-bold text-xs rounded-xl shadow-lg flex items-center gap-2 hover:from-cyan-400 hover:to-blue-500 transition-all"
           >
             <Play className="w-4 h-4 fill-current" /> {loading ? 'Running...' : 'Visualize Algorithm'}
           </button>
@@ -108,7 +120,12 @@ export const VisualizationPage: React.FC<VisualizationPageProps> = ({
             currentStep={currentStep}
             totalSteps={traceEvents.length}
             speed={speed}
-            onPlayPause={() => setIsPlaying(!isPlaying)}
+            onPlayPause={() => {
+              if (!isPlaying && currentStep >= traceEvents.length - 1) {
+                setCurrentStep(0);
+              }
+              setIsPlaying(!isPlaying);
+            }}
             onStepChange={(s) => setCurrentStep(s)}
             onSpeedChange={(sp) => setSpeed(sp)}
             onReset={() => { setCurrentStep(0); setIsPlaying(false); }}

@@ -22,12 +22,16 @@ ml_predictor = MLAlgorithmPredictor()
 
 ALGORITHMS_MAP = {
     "Brute Force": (BruteForceTSP(), 10),
+    "Brute Force O(N!)": (BruteForceTSP(), 10),
     "Dynamic Programming": (DynamicProgrammingTSP(), 16),
     "Dynamic Programming (Held-Karp)": (DynamicProgrammingTSP(), 16),
     "Branch & Bound": (BranchAndBoundTSP(), 16),
+    "Branch & Bound (State Space Tree)": (BranchAndBoundTSP(), 16),
+    "Branch & Bound (Pruned State Space)": (BranchAndBoundTSP(), 16),
     "Greedy": (GreedyNearestNeighborTSP(), 100),
     "Greedy (Nearest Neighbor)": (GreedyNearestNeighborTSP(), 100),
     "Nearest Neighbor + 2-opt": (TwoOptTSP(), 100),
+    "Nearest Neighbor + 2-opt Heuristic": (TwoOptTSP(), 100),
 }
 
 @router.post("/analyze")

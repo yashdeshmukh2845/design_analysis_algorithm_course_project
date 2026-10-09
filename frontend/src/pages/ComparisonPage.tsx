@@ -20,6 +20,7 @@ export const ComparisonPage: React.FC<ComparisonPageProps> = ({
   const [loading, setLoading] = useState(false);
 
   const handleCompareAll = async () => {
+    if (locations.length < 1) return;
     setLoading(true);
     try {
       const data = await api.compareAlgorithms(locations);
@@ -33,6 +34,12 @@ export const ComparisonPage: React.FC<ComparisonPageProps> = ({
       setLoading(false);
     }
   };
+
+  React.useEffect(() => {
+    if (locations.length > 0 && results.length === 0) {
+      handleCompareAll();
+    }
+  }, [locations]);
 
   return (
     <div className="space-y-6">

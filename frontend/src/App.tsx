@@ -12,7 +12,6 @@ import { BenchmarkPage } from './pages/BenchmarkPage';
 import { VisualizationPage } from './pages/VisualizationPage';
 import { DatasetManagerPage } from './pages/DatasetManagerPage';
 import { ReportsPage } from './pages/ReportsPage';
-import { DocumentationPage } from './pages/DocumentationPage';
 
 export function App() {
   const [locations, setLocations] = useState<Location[]>([]);
@@ -117,10 +116,6 @@ export function App() {
                   selectedRouteResult={selectedRouteResult}
                 />
               }
-            />
-            <Route
-              path="/docs"
-              element={<DocumentationPage />}
             />
             <Route
               path="*"

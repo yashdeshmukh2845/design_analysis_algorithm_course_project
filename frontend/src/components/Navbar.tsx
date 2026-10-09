@@ -10,7 +10,6 @@ import {
   Eye,
   Database,
   FileText,
-  BookOpen,
   Zap
 } from 'lucide-react';
 
@@ -27,7 +26,6 @@ export const Navbar: React.FC = () => {
     { path: '/benchmark', label: 'Benchmark Lab', icon: Activity },
     { path: '/datasets', label: 'Dataset Manager', icon: Database },
     { path: '/reports', label: 'Reports', icon: FileText },
-    { path: '/docs', label: 'DAA Viva Guide', icon: BookOpen },
   ];
 
   return (
