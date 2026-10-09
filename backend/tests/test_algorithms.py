@@ -1,3 +1,4 @@
+import json
 import pytest
 from app.algorithms.brute_force import BruteForceTSP
 from app.algorithms.dynamic_programming import DynamicProgrammingTSP
@@ -5,6 +6,7 @@ from app.algorithms.branch_and_bound import BranchAndBoundTSP
 from app.algorithms.greedy import GreedyNearestNeighborTSP
 from app.algorithms.two_opt import TwoOptTSP
 from app.algorithms.algorithm_selector import AlgorithmSelectionEngine
+from app.algorithms.base import sanitize_json_floats
 
 # Test 5x5 Symmetric Cost Matrix
 COST_MATRIX_5 = [
@@ -28,6 +30,22 @@ def test_exact_algorithms_produce_same_optimal_cost():
     # Check exact cost matching
     assert abs(bf_res.total_cost - dp_res.total_cost) < 1e-3, f"BF ({bf_res.total_cost}) != DP ({dp_res.total_cost})"
     assert abs(dp_res.total_cost - bb_res.total_cost) < 1e-3, f"DP ({dp_res.total_cost}) != B&B ({bb_res.total_cost})"
+
+def test_json_serialization_compliance():
+    """Verify all algorithm RouteResults and execution traces serialize with allow_nan=False without raising ValueError."""
+    solvers = [
+        BruteForceTSP(),
+        DynamicProgrammingTSP(),
+        BranchAndBoundTSP(),
+        GreedyNearestNeighborTSP(),
+        TwoOptTSP()
+    ]
+    for solver in solvers:
+        res = solver.solve(COST_MATRIX_5, generate_trace=True)
+        dumped = sanitize_json_floats(res.model_dump())
+        # Serializing with allow_nan=False enforces RFC 8259 compliance (as Starlette JSONResponse does)
+        serialized = json.dumps(dumped, allow_nan=False)
+        assert isinstance(serialized, str) and len(serialized) > 0
 
 def test_heuristics_produce_valid_routes():
     """Verify Greedy and 2-opt return valid routes visiting all nodes and returning to depot."""
@@ -54,3 +72,4 @@ def test_adaptive_algorithm_selector():
 
     rec_large = selector.recommend(num_nodes=30, required_optimality="EXACT")
     assert "2-opt" in rec_large.recommended_algorithm or "Greedy" in rec_large.recommended_algorithm
+

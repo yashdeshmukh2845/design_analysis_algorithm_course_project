@@ -1,7 +1,18 @@
 import time
+import math
 import heapq
 from typing import List, Optional, Tuple
 from app.algorithms.base import BaseTSPAlgorithm, RouteResult, TraceEvent
+
+def safe_float(val: float) -> Optional[float]:
+    if val is None or math.isinf(val) or math.isnan(val):
+        return None
+    return val
+
+def fmt_float(val: float) -> str:
+    if val is None or math.isinf(val) or math.isnan(val):
+        return "∞"
+    return f"{val:.2f}"
 
 class BranchAndBoundTSP(BaseTSPAlgorithm):
     name = "Branch & Bound"
@@ -87,10 +98,10 @@ class BranchAndBoundTSP(BaseTSPAlgorithm):
                     path=[0],
                     current_node=0,
                     cost=0.0,
-                    lower_bound=initial_lb,
-                    best_cost=best_cost,
+                    lower_bound=safe_float(initial_lb),
+                    best_cost=safe_float(best_cost),
                     explored_count=1,
-                    description=f"Root Node (Depot 0) Initialized. Calculated Initial Lower Bound: {initial_lb:.2f}"
+                    description=f"Root Node (Depot 0) Initialized. Calculated Initial Lower Bound: {fmt_float(initial_lb)}"
                 )
             )
 
@@ -109,12 +120,12 @@ class BranchAndBoundTSP(BaseTSPAlgorithm):
                             path=path,
                             current_node=path[-1],
                             cost=curr_cost,
-                            lower_bound=lb,
-                            best_cost=best_cost,
+                            lower_bound=safe_float(lb),
+                            best_cost=safe_float(best_cost),
                             explored_count=nodes_explored,
                             pruned_count=nodes_pruned,
                             is_pruned=True,
-                            description=f"✕ BRANCH PRUNED! Path {'→'.join(map(str, path))} lower bound ({lb:.2f}) ≥ Best Known ({best_cost:.2f})"
+                            description=f"✕ BRANCH PRUNED! Path {'→'.join(map(str, path))} lower bound ({fmt_float(lb)}) ≥ Best Known ({fmt_float(best_cost)})"
                         )
                     )
                 continue
@@ -136,10 +147,10 @@ class BranchAndBoundTSP(BaseTSPAlgorithm):
                                 path=full_tour,
                                 current_node=0,
                                 cost=best_cost,
-                                best_cost=best_cost,
+                                best_cost=safe_float(best_cost),
                                 explored_count=nodes_explored,
                                 pruned_count=nodes_pruned,
-                                description=f"✨ NEW BEST SOLUTION FOUND! Path: {'→'.join(map(str, full_tour))} Cost: {best_cost:.2f}"
+                                description=f"✨ NEW BEST SOLUTION FOUND! Path: {'→'.join(map(str, full_tour))} Cost: {fmt_float(best_cost)}"
                             )
                         )
                 continue
@@ -163,11 +174,11 @@ class BranchAndBoundTSP(BaseTSPAlgorithm):
                                 current_node=next_node,
                                 candidate_node=next_node,
                                 cost=new_cost,
-                                lower_bound=new_lb,
-                                best_cost=best_cost,
+                                lower_bound=safe_float(new_lb),
+                                best_cost=safe_float(best_cost),
                                 explored_count=nodes_explored,
                                 pruned_count=nodes_pruned,
-                                description=f"Branch Expanded: Added Node {next_node} | Path: {'→'.join(map(str, new_path))} | Cost: {new_cost:.2f} | Bound: {new_lb:.2f}"
+                                description=f"Branch Expanded: Added Node {next_node} | Path: {'→'.join(map(str, new_path))} | Cost: {new_cost:.2f} | Bound: {fmt_float(new_lb)}"
                             )
                         )
                 else:
@@ -181,18 +192,19 @@ class BranchAndBoundTSP(BaseTSPAlgorithm):
                                 path=new_path,
                                 current_node=next_node,
                                 cost=new_cost,
-                                lower_bound=new_lb,
-                                best_cost=best_cost,
+                                lower_bound=safe_float(new_lb),
+                                best_cost=safe_float(best_cost),
                                 explored_count=nodes_explored,
                                 pruned_count=nodes_pruned,
                                 is_pruned=True,
-                                description=f"✕ PRUNED BRANCH at Node {next_node}! Bound ({new_lb:.2f}) ≥ Best ({best_cost:.2f})"
+                                description=f"✕ PRUNED BRANCH at Node {next_node}! Bound ({fmt_float(new_lb)}) ≥ Best ({fmt_float(best_cost)})"
                             )
                         )
 
-        final_dist = self.calculate_path_cost(best_path, dist_mat, False)
-        final_time = self.calculate_path_cost(best_path, time_mat, False)
+        final_dist = self.calculate_path_cost(best_path, dist_mat, False) if best_path else 0.0
+        final_time = self.calculate_path_cost(best_path, time_mat, False) if best_path else 0.0
         exec_time = time.perf_counter() - start_time
+        final_cost = safe_float(best_cost) or 0.0
 
         if generate_trace:
             step += 1
@@ -202,11 +214,11 @@ class BranchAndBoundTSP(BaseTSPAlgorithm):
                     type="OPTIMAL_FOUND",
                     path=best_path,
                     current_node=0,
-                    cost=best_cost,
-                    best_cost=best_cost,
+                    cost=final_cost,
+                    best_cost=final_cost,
                     explored_count=nodes_explored,
                     pruned_count=nodes_pruned,
-                    description=f"✓ OPTIMAL ROUTE FOUND via Branch & Bound! Explored: {nodes_explored}, Pruned: {nodes_pruned}. Optimal Cost: {best_cost:.2f}"
+                    description=f"✓ OPTIMAL ROUTE FOUND via Branch & Bound! Explored: {nodes_explored}, Pruned: {nodes_pruned}. Optimal Cost: {fmt_float(final_cost)}"
                 )
             )
 
@@ -215,7 +227,7 @@ class BranchAndBoundTSP(BaseTSPAlgorithm):
             route=best_path,
             distance_km=round(final_dist, 2),
             travel_time_min=round(final_time, 2),
-            total_cost=round(best_cost, 2),
+            total_cost=round(final_cost, 2),
             execution_time_sec=round(exec_time, 6),
             is_optimal=True,
             complexity=self.complexity,
@@ -223,3 +235,4 @@ class BranchAndBoundTSP(BaseTSPAlgorithm):
             nodes_pruned=nodes_pruned,
             execution_trace=trace
         )
+

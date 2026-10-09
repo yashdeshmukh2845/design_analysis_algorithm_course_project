@@ -1,5 +1,6 @@
 import sys
 import os
+import json
 
 # Add backend directory to sys.path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
@@ -10,6 +11,7 @@ from app.algorithms.branch_and_bound import BranchAndBoundTSP
 from app.algorithms.greedy import GreedyNearestNeighborTSP
 from app.algorithms.two_opt import TwoOptTSP
 from app.algorithms.algorithm_selector import AlgorithmSelectionEngine
+from app.algorithms.base import sanitize_json_floats
 
 COST_MATRIX_5 = [
     [0.0, 10.0, 15.0, 20.0, 25.0],
@@ -55,7 +57,16 @@ def run_all_tests():
     assert "2-opt" in rec25.recommended_algorithm
     print("[PASS] TEST 3: Adaptive Algorithm Selection Engine logic verified!\n")
 
+    # Test 4: JSON serialization RFC 8259 compliance
+    for solver in [BruteForceTSP(), DynamicProgrammingTSP(), BranchAndBoundTSP(), GreedyNearestNeighborTSP(), TwoOptTSP()]:
+        res = solver.solve(COST_MATRIX_5, generate_trace=True)
+        dumped = sanitize_json_floats(res.model_dump())
+        serialized = json.dumps(dumped, allow_nan=False)
+        assert isinstance(serialized, str)
+    print("[PASS] TEST 4: JSON serialization with allow_nan=False (RFC 8259 compliance) passed!\n")
+
     print("SUCCESS: ALL BACKEND ALGORITHM TESTS PASSED!")
 
 if __name__ == "__main__":
     run_all_tests()
+

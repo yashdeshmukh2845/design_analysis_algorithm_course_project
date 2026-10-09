@@ -5,6 +5,7 @@ from pydantic import BaseModel
 from app.models import LocationSchema, OptimizationRequestSchema
 from app.services.distance_matrix import build_distance_and_time_matrices
 from app.services.multi_objective import build_multi_objective_cost_matrix, evaluate_route_constraints
+from app.algorithms.base import sanitize_json_floats
 from app.algorithms.brute_force import BruteForceTSP
 from app.algorithms.dynamic_programming import DynamicProgrammingTSP
 from app.algorithms.branch_and_bound import BranchAndBoundTSP
@@ -38,11 +39,11 @@ def analyze_problem(locations: List[LocationSchema], required_optimality: str = 
         required_optimality=required_optimality
     )
     ml_res = ml_predictor.predict_algorithm(n, required_optimality=required_optimality)
-    return {
+    return sanitize_json_floats({
         "num_nodes": n,
         "recommendation": rec,
         "ml_prediction": ml_res
-    }
+    })
 
 @router.post("/single")
 def optimize_single(req: OptimizationRequestSchema):
@@ -86,7 +87,7 @@ def optimize_single(req: OptimizationRequestSchema):
     res_dict["timeline"] = timeline
     res_dict["total_cost"] = round(result.total_cost + penalty, 2)
 
-    return res_dict
+    return sanitize_json_floats(res_dict)
 
 @router.post("/compare")
 def compare_all_algorithms(req: OptimizationRequestSchema):
@@ -139,11 +140,11 @@ def compare_all_algorithms(req: OptimizationRequestSchema):
 
     rec = selector_engine.recommend(len(locations), required_optimality=req.required_optimality)
 
-    return {
+    return sanitize_json_floats({
         "num_locations": len(locations),
         "recommended_algorithm": rec,
         "results": results_list
-    }
+    })
 
 @router.post("/vrp")
 def optimize_multi_vehicle(locations: List[LocationSchema], max_capacity_kg: float = 20.0, num_vehicles: int = 2):
@@ -154,4 +155,5 @@ def optimize_multi_vehicle(locations: List[LocationSchema], max_capacity_kg: flo
 
     vrp = MultiVehicleVRP()
     res = vrp.solve(weights, cost_mat, dist_mat, time_mat, max_capacity_kg, num_vehicles)
-    return res.model_dump()
+    return sanitize_json_floats(res.model_dump())
+

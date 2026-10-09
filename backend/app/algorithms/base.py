@@ -1,6 +1,21 @@
+import math
 import time
 from typing import List, Dict, Any, Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
+
+def sanitize_json_floats(obj: Any) -> Any:
+    """Recursively replaces inf, -inf, and nan floats with None (or 0.0) for standard JSON serialization compliance."""
+    if isinstance(obj, float):
+        if math.isinf(obj) or math.isnan(obj):
+            return None
+        return obj
+    elif isinstance(obj, dict):
+        return {k: sanitize_json_floats(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [sanitize_json_floats(v) for v in obj]
+    elif isinstance(obj, tuple):
+        return tuple(sanitize_json_floats(v) for v in obj)
+    return obj
 
 class TraceEvent(BaseModel):
     step: int
@@ -18,6 +33,20 @@ class TraceEvent(BaseModel):
     is_pruned: bool = False
     metadata: Dict[str, Any] = Field(default_factory=dict)
 
+    @field_validator('cost', mode='before')
+    @classmethod
+    def clean_cost(cls, v: Any) -> float:
+        if isinstance(v, float) and (math.isinf(v) or math.isnan(v)):
+            return 0.0
+        return v or 0.0
+
+    @field_validator('best_cost', 'lower_bound', mode='before')
+    @classmethod
+    def clean_optional_floats(cls, v: Any) -> Optional[float]:
+        if isinstance(v, float) and (math.isinf(v) or math.isnan(v)):
+            return None
+        return v
+
 class RouteResult(BaseModel):
     algorithm: str
     route: List[int]  # List of location indices starting and ending at 0 (Depot)
@@ -33,6 +62,20 @@ class RouteResult(BaseModel):
     trace_sampled: bool = False
     constraint_violations: List[str] = Field(default_factory=list)
     optimality_gap_percent: Optional[float] = None
+
+    @field_validator('distance_km', 'travel_time_min', 'total_cost', 'execution_time_sec', mode='before')
+    @classmethod
+    def clean_required_floats(cls, v: Any) -> float:
+        if isinstance(v, float) and (math.isinf(v) or math.isnan(v)):
+            return 0.0
+        return v or 0.0
+
+    @field_validator('optimality_gap_percent', mode='before')
+    @classmethod
+    def clean_gap(cls, v: Any) -> Optional[float]:
+        if isinstance(v, float) and (math.isinf(v) or math.isnan(v)):
+            return None
+        return v
 
 class BaseTSPAlgorithm:
     name: str = "Base Algorithm"
@@ -58,3 +101,4 @@ class BaseTSPAlgorithm:
         if return_to_depot and len(path) > 0:
             cost += matrix[path[-1]][path[0]]
         return round(cost, 4)
+
