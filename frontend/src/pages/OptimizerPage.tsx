@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import type { Location, RouteResult, SelectionRecommendation, MLPrediction } from '../types';
 import { api } from '../services/api';
 import { Route, Play, MapPin, AlertTriangle } from 'lucide-react';
@@ -10,15 +11,14 @@ interface OptimizerPageProps {
   locations: Location[];
   selectedRouteResult: RouteResult | null;
   setSelectedRouteResult: (res: RouteResult) => void;
-  setActiveTab: (tab: string) => void;
 }
 
 export const OptimizerPage: React.FC<OptimizerPageProps> = ({
   locations,
   selectedRouteResult,
-  setSelectedRouteResult,
-  setActiveTab
+  setSelectedRouteResult
 }) => {
+  const navigate = useNavigate();
   const [selectedAlgo, setSelectedAlgo] = useState<string>('AUTO');
   const [requiredOptimality] = useState<string>('EXACT');
   const [weights, setWeights] = useState({ alpha: 0.40, beta: 0.30, gamma: 0.15, delta: 0.15 });
@@ -147,7 +147,7 @@ export const OptimizerPage: React.FC<OptimizerPageProps> = ({
             </h3>
             {selectedRouteResult && (
               <button
-                onClick={() => setActiveTab('visualizer')}
+                onClick={() => navigate('/visualizer')}
                 className="text-xs font-mono text-cyan-400 hover:underline flex items-center gap-1"
               >
                 Inspect Step-by-Step DAA Trace →

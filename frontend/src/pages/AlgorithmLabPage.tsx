@@ -8,7 +8,6 @@ import { AlgorithmStatusPanel } from '../components/AlgorithmStatusPanel';
 
 interface AlgorithmLabPageProps {
   locations: Location[];
-  setActiveTab?: (tab: string) => void;
 }
 
 export const AlgorithmLabPage: React.FC<AlgorithmLabPageProps> = ({ locations }) => {

@@ -6,7 +6,6 @@ import { Database, Download, Zap, RefreshCw } from 'lucide-react';
 interface DatasetManagerPageProps {
   locations: Location[];
   setLocations: (locs: Location[]) => void;
-  setActiveTab?: (tab: string) => void;
 }
 
 export const DatasetManagerPage: React.FC<DatasetManagerPageProps> = ({

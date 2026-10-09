@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import type { Location, RouteResult, SelectionRecommendation } from '../types';
 import { api } from '../services/api';
 import {
@@ -15,7 +16,6 @@ import { NodeGraphCanvas } from '../components/NodeGraphCanvas';
 import { AlgorithmSelectorCard } from '../components/AlgorithmSelectorCard';
 
 interface DashboardPageProps {
-  setActiveTab: (tab: string) => void;
   locations: Location[];
   setLocations: (locs: Location[]) => void;
   selectedRouteResult: RouteResult | null;
@@ -23,12 +23,12 @@ interface DashboardPageProps {
 }
 
 export const DashboardPage: React.FC<DashboardPageProps> = ({
-  setActiveTab,
   locations,
   setLocations,
   selectedRouteResult,
   setSelectedRouteResult
 }) => {
+  const navigate = useNavigate();
   const [recommendation, setRecommendation] = useState<SelectionRecommendation | undefined>(undefined);
   const [loading, setLoading] = useState(false);
 
@@ -70,7 +70,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
           
           <div className="flex flex-wrap items-center gap-3 pt-2">
             <button
-              onClick={() => setActiveTab('optimizer')}
+              onClick={() => navigate('/optimizer')}
               className="px-5 py-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-bold text-xs rounded-xl shadow-lg shadow-cyan-500/20 flex items-center gap-2 transition-all"
             >
               <Route className="w-4 h-4" /> Run Optimization Engine <ArrowRight className="w-4 h-4" />
@@ -139,7 +139,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
               <Activity className="w-4 h-4 text-cyan-400" /> Current Route Graph Preview
             </h3>
             <button
-              onClick={() => setActiveTab('visualizer')}
+              onClick={() => navigate('/visualizer')}
               className="text-xs font-mono text-cyan-400 hover:underline flex items-center gap-1"
             >
               Open Live Visualizer Laboratory <ArrowRight className="w-3 h-3" />

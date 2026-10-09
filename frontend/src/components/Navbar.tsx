@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard,
   MapPin,
@@ -13,23 +14,20 @@ import {
   Zap
 } from 'lucide-react';
 
-interface NavbarProps {
-  activeTab: string;
-  setActiveTab: (tab: string) => void;
-}
+export const Navbar: React.FC = () => {
+  const location = useLocation();
 
-export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
   const navItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'builder', label: 'Problem Builder', icon: MapPin },
-    { id: 'optimizer', label: 'Route Optimizer', icon: Route },
-    { id: 'lab', label: 'Algorithm Lab', icon: Cpu },
-    { id: 'visualizer', label: 'Live Visualization', icon: Eye },
-    { id: 'comparison', label: 'Comparison', icon: BarChart2 },
-    { id: 'benchmark', label: 'Benchmark Lab', icon: Activity },
-    { id: 'datasets', label: 'Dataset Manager', icon: Database },
-    { id: 'reports', label: 'Reports', icon: FileText },
-    { id: 'docs', label: 'DAA Viva Guide', icon: BookOpen },
+    { path: '/', label: 'Dashboard', icon: LayoutDashboard },
+    { path: '/builder', label: 'Problem Builder', icon: MapPin },
+    { path: '/optimizer', label: 'Route Optimizer', icon: Route },
+    { path: '/lab', label: 'Algorithm Lab', icon: Cpu },
+    { path: '/visualizer', label: 'Live Visualization', icon: Eye },
+    { path: '/comparison', label: 'Comparison', icon: BarChart2 },
+    { path: '/benchmark', label: 'Benchmark Lab', icon: Activity },
+    { path: '/datasets', label: 'Dataset Manager', icon: Database },
+    { path: '/reports', label: 'Reports', icon: FileText },
+    { path: '/docs', label: 'DAA Viva Guide', icon: BookOpen },
   ];
 
   return (
@@ -37,9 +35,9 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <div 
+          <Link 
+            to="/"
             className="flex items-center gap-3 cursor-pointer"
-            onClick={() => setActiveTab('dashboard')}
           >
             <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
               <Zap className="w-6 h-6 text-white" />
@@ -52,17 +50,17 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
                 Adaptive DAA Platform
               </span>
             </div>
-          </div>
+          </Link>
 
           {/* Navigation Links */}
           <nav className="hidden md:flex items-center space-x-1 overflow-x-auto">
             {navItems.map((item) => {
               const Icon = item.icon;
-              const isActive = activeTab === item.id;
+              const isActive = location.pathname === item.path || (item.path === '/' && location.pathname === '/dashboard');
               return (
-                <button
-                  key={item.id}
-                  onClick={() => setActiveTab(item.id)}
+                <Link
+                  key={item.path}
+                  to={item.path}
                   className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
                     isActive
                       ? 'bg-cyan-500/15 text-cyan-400 border border-cyan-500/30 shadow-sm shadow-cyan-500/10'
@@ -71,7 +69,7 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
                 >
                   <Icon className={`w-4 h-4 ${isActive ? 'text-cyan-400' : 'text-slate-500'}`} />
                   {item.label}
-                </button>
+                </Link>
               );
             })}
           </nav>

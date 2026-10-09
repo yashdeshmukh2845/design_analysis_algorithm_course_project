@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import type { Location, PriorityLevel } from '../types';
 import { MapPin, Plus, Trash2, Zap, ArrowRight } from 'lucide-react';
 import { api } from '../services/api';
@@ -6,14 +7,13 @@ import { api } from '../services/api';
 interface ProblemBuilderPageProps {
   locations: Location[];
   setLocations: (locs: Location[]) => void;
-  setActiveTab: (tab: string) => void;
 }
 
 export const ProblemBuilderPage: React.FC<ProblemBuilderPageProps> = ({
   locations,
-  setLocations,
-  setActiveTab
+  setLocations
 }) => {
+  const navigate = useNavigate();
   const [newLoc, setNewLoc] = useState<Location>({
     name: '',
     latitude: 18.5204,
@@ -69,7 +69,7 @@ export const ProblemBuilderPage: React.FC<ProblemBuilderPageProps> = ({
             <Zap className="w-4 h-4" /> Reset to Pune Demo Dataset
           </button>
           <button
-            onClick={() => setActiveTab('optimizer')}
+            onClick={() => navigate('/optimizer')}
             className="px-5 py-2 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs rounded-xl flex items-center gap-2 shadow-lg shadow-cyan-500/20"
           >
             Proceed to Optimizer <ArrowRight className="w-4 h-4" />
