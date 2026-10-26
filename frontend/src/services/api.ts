@@ -121,5 +121,36 @@ export const api = {
       weights
     });
     return res.data;
+  },
+
+  // Quick Commerce Blinkit Dispatch Engine
+  getQuickCommerceState: async (): Promise<any> => {
+    const res = await axios.get(`${API_BASE_URL}/quick-commerce/state`);
+    return res.data;
+  },
+
+  resetQuickCommerceState: async (): Promise<any> => {
+    const res = await axios.post(`${API_BASE_URL}/quick-commerce/reset`);
+    return res.data;
+  },
+
+  addQuickCommerceOrder: async (order?: any): Promise<any> => {
+    const res = await axios.post(`${API_BASE_URL}/quick-commerce/add-order`, order || null);
+    return res.data;
+  },
+
+  dispatchQuickCommerceFleet: async (params: {
+    algorithm?: string;
+    active_riders_count?: number;
+    rain_surge?: boolean;
+    rush_hour?: boolean;
+  }): Promise<any> => {
+    const res = await axios.post(`${API_BASE_URL}/quick-commerce/dispatch`, {
+      algorithm: params.algorithm || 'Branch & Bound',
+      active_riders_count: params.active_riders_count || 3,
+      rain_surge: params.rain_surge || false,
+      rush_hour: params.rush_hour || false
+    });
+    return res.data;
   }
 };

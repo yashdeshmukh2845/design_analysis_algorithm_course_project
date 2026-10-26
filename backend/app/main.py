@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.database import engine, Base
-from app.api import problems, optimize, benchmark, datasets, reports
+from app.api import problems, optimize, benchmark, datasets, reports, quick_commerce
 
 # Create SQLite database tables
 Base.metadata.create_all(bind=engine)
@@ -27,6 +27,7 @@ app.include_router(optimize.router)
 app.include_router(benchmark.router)
 app.include_router(datasets.router)
 app.include_router(reports.router)
+app.include_router(quick_commerce.router)
 
 @app.get("/")
 def root():

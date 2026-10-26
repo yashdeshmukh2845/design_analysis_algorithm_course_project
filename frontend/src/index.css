@@ -45,14 +45,13 @@ body {
   }
 }
 
-/* Custom Leaflet map dark mode styling */
+/* Leaflet map styles */
 .leaflet-container {
-  background-color: #0b0f19 !important;
-  border-radius: 0.75rem;
-}
-
-.leaflet-tile-pane {
-  filter: brightness(0.7) invert(1) contrast(1.3) hue-rotate(200deg) saturate(0.3);
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 580px !important;
+  border-radius: 1.5rem;
+  z-index: 1;
 }
 
 /* Custom Scrollbar */
